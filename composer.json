@@ -7,16 +7,22 @@
             "email": "jitendra@webkul.com"
         }
     ],
+    "require": {
+        "webkul/laravel-admin": "dev-master",
+        "webkul/laravel-ui": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\Admin\\": "src/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
                 "Webkul\\Admin\\AdminServiceProvider"
             ],
-            "aliases": {
-                
-            }
+            "aliases": {}
         }
     },
-    "minimum-stability": "dev",
-    "require": {}
+    "minimum-stability": "dev"
 }
