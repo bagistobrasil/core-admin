@@ -8,8 +8,8 @@
             </div>
 
             <div class="page-action">
-                <a href="{{ route('admin.users.create') }}" class="btn btn-lg btn-primary">
-                    {{ __('Add User') }}
+                <a href="{{ route('admin.roles.create') }}" class="btn btn-lg btn-primary">
+                    {{ __('Add Role') }}
                 </a>
             </div>
         </div>

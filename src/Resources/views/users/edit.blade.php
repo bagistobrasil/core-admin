@@ -2,26 +2,22 @@
 
 @section('content')
     <div class="content">
-        <form method="POST" action="" @submit.prevent="onSubmit">
+        <form method="POST" action="{{ route('admin.users.update', $user->id) }}" @submit.prevent="onSubmit">
             <div class="page-header">
                 <div class="page-title">
-                    <h1>
-                        {{ __('My Account') }}
-                    </h1>
+                    <h1>{{ __('Edit User') }}</h1>
                 </div>
 
                 <div class="page-action">
                     <button type="submit" class="btn btn-lg btn-primary">
-                        {{ __('Save') }}
+                        {{ __('Save User') }}
                     </button>
                 </div>
             </div>
 
             <div class="page-content">
-                
                 <div class="form-container">
                     @csrf()
-
                     <input name="_method" type="hidden" value="PUT">
 
                     <accordian :title="'{{ __('General') }}'" :active="true">
@@ -52,6 +48,29 @@
                                 <label for="password_confirmation">{{ __('Confirm Password') }}</label>
                                 <input type="password" v-validate="'min:6|max:18|confirmed:password'" class="control" id="password_confirmation" name="password_confirmation"/>
                                 <span class="control-error" v-if="errors.has('password_confirmation')">@{{ errors.first('password_confirmation') }}</span>
+                            </div>
+                        </div>
+                    </accordian>
+
+                    <accordian :title="'{{ __('Status and Role') }}'" :active="true">
+                        <div class="accordian-content">
+                            <div class="control-group" :class="[errors.has('role_id') ? 'has-error' : '']">
+                                <label for="role">{{ __('Role') }}</label>
+                                <select v-validate="'required'" class="control" name="role_id">
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->id }}" {{ $user->role_id == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="control-error" v-if="errors.has('role_id')">@{{ errors.first('role_id') }}</span>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="status">{{ __('Status') }}</label>
+                                <span class="checkbox">
+                                    <input type="checkbox" id="status" name="status" value="{{ $user->status }}" {{ $user->status ? 'checked' : '' }}>
+                                    <label class="checkbox-view" for="status"></label>
+                                    {{ __('Account is Active') }}
+                                </span>
                             </div>
                         </div>
                     </accordian>
