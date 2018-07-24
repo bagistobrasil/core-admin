@@ -1,16 +1,16 @@
 @extends('admin::layouts.content')
 
 @section('page_title')
-    {{ __('admin::app.catalog.families.add-title') }}
+    {{ __('admin::app.catalog.families.edit-title') }}
 @stop
 
 @section('content')
     <div class="content">
-        <form method="POST" action="{{ route('admin.catalog.families.store') }}">
+        <form method="POST" action="{{ route('admin.catalog.families.update', $attributeFamily->id) }}">
 
             <div class="page-header">
                 <div class="page-title">
-                    <h1>{{ __('admin::app.catalog.families.add-title') }}</h1>
+                    <h1>{{ __('admin::app.catalog.families.edit-title') }}</h1>
                 </div>
 
                 <div class="page-action">
@@ -24,19 +24,20 @@
                 
                 <div class="form-container">
                     @csrf()
+                    <input name="_method" type="hidden" value="PUT">
 
                     <accordian :title="'{{ __('admin::app.catalog.families.general') }}'" :active="true">
                         <div slot="body">
                         
                             <div class="control-group" :class="[errors.has('code') ? 'has-error' : '']">
                                 <label for="code" class="required">{{ __('admin::app.catalog.families.code') }}</label>
-                                <input type="text" v-validate="'required'" class="control" id="code" name="code" value="{{ old('code') }}"/>
+                                <input type="text" v-validate="'required'" class="control" id="code" name="code" value="{{ old('code') ?: $attributeFamily->code }}"/>
                                 <span class="control-error" v-if="errors.has('code')">@{{ errors.first('code') }}</span>
                             </div>
                         
                             <div class="control-group" :class="[errors.has('name') ? 'has-error' : '']">
                                 <label for="name" class="required">{{ __('admin::app.catalog.families.name') }}</label>
-                                <input type="text" v-validate="'required'" class="control" id="name" name="name" value="{{ old('name') }}"/>
+                                <input type="text" v-validate="'required'" class="control" id="name" name="name" value="{{ old('name') ?: $attributeFamily->name }}"/>
                                 <span class="control-error" v-if="errors.has('name')">@{{ errors.first('name') }}</span>
                             </div>
 
@@ -100,7 +101,7 @@
     </script>
 
     <script type="text/x-template" id="group-list-template">
-        <div>
+        <div style="margin-top: 20px">
             <group-item v-for='(group, index) in groups' :group="group" :attributes="attributes" :key="index" :index="index" @onRemoveGroup="removeGroup($event)" @onAttributeAdd="addAttributes(index, $event)" @onAttributeRemove="removeAttribute(index, $event)"></group-item>
         </div>
     </script>
@@ -109,12 +110,12 @@
         <accordian :title="group.groupName" :active="true">
             <div slot="header">
                 <i class="icon expand-icon left"></i>
-                <h1>@{{ group.groupName }}</h1>
+                <h1>@{{ group.name ? group.name : group.groupName }}</h1>
                 <i class="icon trash-icon" @click="removeGroup()"></i>
             </div>
 
             <div slot="body">
-                <input type="hidden" :name="groupInputName" :value="group.groupName"/>
+                <input type="hidden" :name="groupInputName" :value="group.name ? group.name : group.groupName"/>
                 <input type="hidden":name="groupInputPosition" :value="group.position"/>
 
                 <div class="table" v-if="group.attributes.length" style="margin-bottom: 20px;">
@@ -175,7 +176,7 @@
     
     <script>
         // $(document).ready(function () {
-            var groups = [];
+            var groups = @json($attributeFamily->attribute_groups);
             var attributes = @json($attributes);
 
             Vue.component('group-form', {
@@ -197,7 +198,7 @@
                                 var this_this = this;
 
                                 var filteredGroups = groups.filter(function(group) {
-                                    return this_this.group.groupName.trim() === group.groupName.trim()
+                                    return this_this.group.groupName.trim() === (group.name ? group.name.trim() : group.groupName.trim())
                                 })
 
                                 if(filteredGroups.length) {
@@ -240,6 +241,21 @@
                     groups: groups,
                     attributes: attributes
                 }),
+
+                created () {
+                    this.groups.forEach(function(group) {
+                        group.attributes.forEach(function(attribute) {
+                            var attribute = this.attributes.filter(attributeTemp => attributeTemp.id == attribute.id)
+
+                            if(attribute.length) {
+                                let index = this.attributes.indexOf(attribute[0])
+
+                                this.attributes.splice(index, 1)
+                            }
+
+                        });
+                    });
+                },
 
                 methods: {
                     removeGroup (group) {
@@ -291,14 +307,23 @@
 
                 computed: {
                     groupInputName () {
+                        if(this.group.id)
+                            return "attribute_groups[" + this.group.id + "][name]";
+
                         return "attribute_groups[group_" + this.index + "][name]";
                     },
 
                     groupInputPosition () {
+                        if(this.group.id)
+                            return "attribute_groups[" + this.group.id + "][position]";
+
                         return "attribute_groups[group_" + this.index + "][position]";
                     },
 
                     groupAttributeInput () {
+                        if(this.group.id)
+                            return "attribute_groups[" + this.group.id + "][attributes][]";
+
                         return "attribute_groups[group_" + this.index + "][attributes][]";
                     }
                 },
