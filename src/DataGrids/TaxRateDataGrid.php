@@ -6,30 +6,29 @@ use Illuminate\View\View;
 use Webkul\Ui\DataGrid\Facades\DataGrid;
 
 /**
- * Users DataGrid
+ * Tax Rates DataGrid
  *
  * @author    Prashant Singh <prashant.singh852@webkul.com> @prashant-webkul
  * @copyright 2018 Webkul Software Pvt Ltd (http://www.webkul.com)
  */
 
-class UserDataGrid
+class TaxRateDataGrid
 {
     /**
-     * The Data Grid implementation.
+     * The Tax Rule Data
+     * Grid implementation.
      *
-     * @var UserDataGrid
-     * for admin users
+     * @var TaxRateDataGrid
      */
-
-    public function createUserDataGrid()
+    public function createTaxRateDataGrid()
     {
 
         return DataGrid::make([
 
-            'name' => 'Admins',
-            'table' => 'admins as u',
-            'select' => 'u.id',
-            'perpage' => 5,
+            'name' => 'Tax Rates',
+            'table' => 'tax_rates as tr',
+            'select' => 'tr.id',
+            'perpage' => 10,
             'aliased' => true, //use this with false as default and true in case of joins
 
             'massoperations' =>[
@@ -66,92 +65,114 @@ class UserDataGrid
                 ],
             ],
             'join' => [
-                [
-                    'join' => 'leftjoin',
-                    'table' => 'roles as r',
-                    'primaryKey' => 'u.role_id',
-                    'condition' => '=',
-                    'secondaryKey' => 'r.id',
-                ]
+                // [
+                //     'join' => 'leftjoin',
+                //     'table' => 'roles as r',
+                //     'primaryKey' => 'u.role_id',
+                //     'condition' => '=',
+                //     'secondaryKey' => 'r.id',
+                // ]
             ],
 
             //use aliasing on secodary columns if join is performed
             'columns' => [
                 [
-                    'name' => 'u.id',
+                    'name' => 'tr.id',
                     'alias' => 'ID',
-                    'type' => 'string',
-                    'label' => 'Admin ID',
-                    'sortable' => true,
-                    'wrapper' => function ($value, $object) {
-                        return '<a class="color-red">' . $object->ID . '</a>';
-                    },
-                ],
-                [
-                    'name' => 'u.name',
-                    'alias' => 'Name',
-                    'type' => 'string',
-                    'label' => 'Name',
-                    'sortable' => true,
-                    'wrapper' => function ($value, $object) {
-                        return '<a class="color-red">' . $object->Name . '</a>';
-                    },
-                ],
-                [
-                    'name' => 'u.email',
-                    'alias' => 'Email',
-                    'type' => 'string',
-                    'label' => 'E-Mail',
+                    'type' => 'number',
+                    'label' => 'ID',
                     'sortable' => true,
                 ],
                 [
-                    'name' => 'r.name',
-                    'alias' => 'xa',
+                    'name' => 'tr.identifier',
+                    'alias' => 'identifier',
                     'type' => 'string',
-                    'label' => 'Role Name',
+                    'label' => 'Identifier',
+                    'sortable' => true,
+                    // 'wrapper' => function ($value, $object) {
+                    //     return '<a class="color-red">' . $object->Name . '</a>';
+                    // },
+                ],
+                [
+                    'name' => 'tr.state',
+                    'alias' => 'state',
+                    'type' => 'string',
+                    'label' => 'State',
                     'sortable' => true,
                 ],
                 [
-                    'name' => 'r.id',
-                    'alias' => 'xc',
+                    'name' => 'tr.country',
+                    'alias' => 'country',
                     'type' => 'string',
-                    'label' => 'Role ID',
+                    'label' => 'Country',
+                    'sortable' => true,
+                ],
+
+                [
+                    'name' => 'tr.tax_rate',
+                    'alias' => 'tax_rate',
+                    'type' => 'number',
+                    'label' => 'Tax Rate',
                     'sortable' => true,
                 ],
             ],
             //don't use aliasing in case of filters
             'filterable' => [
                 [
-                    'column' => 'u.name',
-                    'alias' => 'Name',
-                    'type' => 'string',
-                    'label' => 'Name'
-                ],
-                [
-                    'column' => 'u.id',
+                    'name' => 'tr.id',
                     'alias' => 'ID',
                     'type' => 'number',
-                    'label' => 'Admin ID'
+                    'label' => 'ID',
                 ],
                 [
-                    'column' => 'r.id',
-                    'alias' => 'xc',
+                    'name' => 'tr.identifier',
+                    'alias' => 'identifier',
+                    'type' => 'string',
+                    'label' => 'Identifier',
+                ],
+                [
+                    'name' => 'tr.state',
+                    'alias' => 'state',
+                    'type' => 'string',
+                    'label' => 'State',
+                ],
+                [
+                    'name' => 'tr.country',
+                    'alias' => 'country',
+                    'type' => 'string',
+                    'label' => 'Country',
+                ],
+
+                [
+                    'name' => 'tr.tax_rate',
+                    'alias' => 'tax_rate',
                     'type' => 'number',
-                    'label' => 'Role ID'
-                ]
+                    'label' => 'Tax Rate',
+                ],
             ],
             //don't use aliasing in case of searchables
             'searchable' => [
                 [
-                    'column' => 'u.email',
+                    'column' => 'tr.identifier',
                     'type' => 'string',
-                    'label' => 'E-Mail'
+                    'label' => 'Identifier',
                 ],
                 [
-                    'column' => 'u.name',
+                    'column' => 'tr.state',
                     'type' => 'string',
-                    'label' => 'Name'
-                ]
+                    'label' => 'State',
+                ],
+                [
+                    'column' => 'tr.country',
+                    'type' => 'string',
+                    'label' => 'Country',
+                ],
+
+                [
+                    'column' => 'tr.tax_rate',
+                    'type' => 'number',
+                    'label' => 'Tax Rate',
+                ],
             ],
             'operators' => [
                 'eq' => "=",
@@ -172,7 +193,7 @@ class UserDataGrid
 
     public function render() {
 
-        return $this->createUserDataGrid()->render();
+        return $this->createTaxRateDataGrid()->render();
 
     }
 }
