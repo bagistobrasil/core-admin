@@ -1,7 +1,7 @@
 @extends('admin::layouts.content')
 
 @section('page_title')
-    {{ __('admin::app.error.403.page-title') }}
+    {{ __('admin::app.error.401.page-title') }}
 @stop
 
 @section('content')
@@ -13,15 +13,15 @@
             <div class="error-box"  style="width: 50%">
 
                 <div class="error-title" style="font-size: 100px;color: #5E5E5E">
-                    {{ __('admin::app.error.403.name') }}
+                    {{ __('admin::app.error.401.name') }}
                 </div>
 
                 <div class="error-messgae" style="font-size: 24px;color: #5E5E5E">
-                    {{ __('admin::app.error.403.title') }}
+                    {{ __('admin::app.error.401.title') }}
                 </div>
 
                 <div class="error-description" style="margin-top: 20px;margin-bottom: 20px;color: #242424">
-                    {{ __('admin::app.error.403.message') }}
+                    {{ __('admin::app.error.401.message') }}
                 </div>
 
                 <a href="{{ route('admin.dashboard.index') }}">
