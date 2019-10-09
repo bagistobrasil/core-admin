@@ -1,12 +1,12 @@
 @extends('admin::layouts.master')
 
 @section('page_title')
-    {{ __('admin::app.sales.invoices.view-title', ['invoice_id' => $invoice->id]) }}
+    {{ __('admin::app.sales.refunds.view-title', ['refund_id' => $refund->id]) }}
 @stop
 
 @section('content-wrapper')
 
-    <?php $order = $invoice->order; ?>
+    <?php $order = $refund->order; ?>
 
     <div class="content full-page">
         <div class="page-header">
@@ -14,14 +14,11 @@
                 <h1>
                     <i class="icon angle-left-icon back-link" onclick="history.length > 1 ? history.go(-1) : window.location = '{{ url('/admin/dashboard') }}';"></i>
 
-                    {{ __('admin::app.sales.invoices.view-title', ['invoice_id' => $invoice->id]) }}
+                    {{ __('admin::app.sales.refunds.view-title', ['refund_id' => $refund->id]) }}
                 </h1>
             </div>
 
             <div class="page-action">
-                <a href="{{ route('admin.sales.invoices.print', $invoice->id) }}" class="btn btn-lg btn-primary">
-                    {{ __('admin::app.sales.invoices.print') }}
-                </a>
             </div>
         </div>
 
@@ -39,7 +36,7 @@
                             <div class="section-content">
                                 <div class="row">
                                     <span class="title">
-                                        {{ __('admin::app.sales.invoices.order-id') }}
+                                        {{ __('admin::app.sales.refunds.order-id') }}
                                     </span>
 
                                     <span class="value">
@@ -91,7 +88,7 @@
                                     </span>
 
                                     <span class="value">
-                                        {{ $invoice->address->name }}
+                                        {{ $refund->order->customer_full_name }}
                                     </span>
                                 </div>
 
@@ -101,7 +98,7 @@
                                     </span>
 
                                     <span class="value">
-                                        {{ $invoice->address->email }}
+                                        {{ $refund->order->customer_email }}
                                     </span>
                                 </div>
                             </div>
@@ -173,35 +170,33 @@
                             </div>
                         </div>
 
-                        @if ($order->shipping_address)
-                            <div class="sale-section">
-                                <div class="secton-title">
-                                    <span>{{ __('admin::app.sales.orders.shipping-info') }}</span>
+                        <div class="sale-section">
+                            <div class="secton-title">
+                                <span>{{ __('admin::app.sales.orders.shipping-info') }}</span>
+                            </div>
+
+                            <div class="section-content">
+                                <div class="row">
+                                    <span class="title">
+                                        {{ __('admin::app.sales.orders.shipping-method') }}
+                                    </span>
+
+                                    <span class="value">
+                                        {{ $order->shipping_title }}
+                                    </span>
                                 </div>
 
-                                <div class="section-content">
-                                    <div class="row">
-                                        <span class="title">
-                                            {{ __('admin::app.sales.orders.shipping-method') }}
-                                        </span>
+                                <div class="row">
+                                    <span class="title">
+                                        {{ __('admin::app.sales.orders.shipping-price') }}
+                                    </span>
 
-                                        <span class="value">
-                                            {{ $order->shipping_title }}
-                                        </span>
-                                    </div>
-
-                                    <div class="row">
-                                        <span class="title">
-                                            {{ __('admin::app.sales.orders.shipping-price') }}
-                                        </span>
-
-                                        <span class="value">
-                                            {{ core()->formatBasePrice($order->base_shipping_amount) }}
-                                        </span>
-                                    </div>
+                                    <span class="value">
+                                        {{ core()->formatBasePrice($order->base_shipping_amount) }}
+                                    </span>
                                 </div>
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </accordian>
 
@@ -218,30 +213,22 @@
                                         <th>{{ __('admin::app.sales.orders.qty') }}</th>
                                         <th>{{ __('admin::app.sales.orders.subtotal') }}</th>
                                         <th>{{ __('admin::app.sales.orders.tax-amount') }}</th>
-                                        @if ($invoice->base_discount_amount > 0)
-                                            <th>{{ __('admin::app.sales.orders.discount-amount') }}</th>
-                                        @endif
+                                        <th>{{ __('admin::app.sales.orders.discount-amount') }}</th>
                                         <th>{{ __('admin::app.sales.orders.grand-total') }}</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
 
-                                    @foreach ($invoice->items as $item)
+                                    @foreach ($refund->items as $item)
                                         <tr>
-                                            <td>{{ $item->getTypeInstance()->getOrderedItem($item)->sku }}</td>
+                                            <td>{{ $item->child ? $item->child->sku : $item->sku }}</td>
 
                                             <td>
                                                 {{ $item->name }}
 
-                                                @if (isset($item->additional['attributes']))
-                                                    <div class="item-options">
-                                                        
-                                                        @foreach ($item->additional['attributes'] as $attribute)
-                                                            <b>{{ $attribute['attribute_name'] }} : </b>{{ $attribute['option_label'] }}</br>
-                                                        @endforeach
-
-                                                    </div>
+                                                @if ($html = $item->getOptionDetailHtml())
+                                                    <p>{{ $html }}</p>
                                                 @endif
                                             </td>
 
@@ -253,13 +240,17 @@
 
                                             <td>{{ core()->formatBasePrice($item->base_tax_amount) }}</td>
 
-                                            @if ($invoice->base_discount_amount > 0)
-                                                <td>{{ core()->formatBasePrice($item->base_discount_amount) }}</td>
-                                            @endif
+                                            <td>{{ core()->formatBasePrice($item->base_discount_amount) }}</td>
 
                                             <td>{{ core()->formatBasePrice($item->base_total + $item->base_tax_amount - $item->base_discount_amount) }}</td>
                                         </tr>
                                     @endforeach
+
+                                    @if (! $refund->items->count())
+                                        <tr>
+                                            <td class="empty" colspan="7">{{ __('admin::app.common.no-result-found') }}</td>
+                                        <tr>
+                                    @endif
 
                                 </tbody>
                             </table>
@@ -269,33 +260,49 @@
                             <tr>
                                 <td>{{ __('admin::app.sales.orders.subtotal') }}</td>
                                 <td>-</td>
-                                <td>{{ core()->formatBasePrice($invoice->base_sub_total) }}</td>
+                                <td>{{ core()->formatBasePrice($refund->base_sub_total) }}</td>
                             </tr>
 
-                            <tr>
-                                <td>{{ __('admin::app.sales.orders.shipping-handling') }}</td>
-                                <td>-</td>
-                                <td>{{ core()->formatBasePrice($invoice->base_shipping_amount) }}</td>
-                            </tr>
+                            @if ($refund->base_shipping_amount > 0)
+                                <tr>
+                                    <td>{{ __('admin::app.sales.orders.shipping-handling') }}</td>
+                                    <td>-</td>
+                                    <td>{{ core()->formatBasePrice($refund->base_shipping_amount) }}</td>
+                                </tr>
+                            @endif
 
-                            <tr>
-                                <td>{{ __('admin::app.sales.orders.tax') }}</td>
-                                <td>-</td>
-                                <td>{{ core()->formatBasePrice($invoice->base_tax_amount) }}</td>
-                            </tr>
+                            @if ($refund->base_tax_amount > 0)
+                                <tr>
+                                    <td>{{ __('admin::app.sales.orders.tax') }}</td>
+                                    <td>-</td>
+                                    <td>{{ core()->formatBasePrice($refund->base_tax_amount) }}</td>
+                                </tr>
+                            @endif
 
-                            @if ($invoice->base_discount_amount > 0)
+                            @if ($refund->base_discount_amount > 0)
                                 <tr>
                                     <td>{{ __('admin::app.sales.orders.discount') }}</td>
                                     <td>-</td>
-                                    <td>{{ core()->formatBasePrice($invoice->base_discount_amount) }}</td>
+                                    <td>-{{ core()->formatBasePrice($refund->base_discount_amount) }}</td>
                                 </tr>
                             @endif
+
+                            <tr>
+                                <td>{{ __('admin::app.sales.refunds.adjustment-refund') }}</td>
+                                <td>-</td>
+                                <td>{{ core()->formatBasePrice($refund->base_adjustment_refund) }}</td>
+                            </tr>
+
+                            <tr>
+                                <td>{{ __('admin::app.sales.refunds.adjustment-fee') }}</td>
+                                <td>-</td>
+                                <td>{{ core()->formatBasePrice($refund->base_adjustment_fee) }}</td>
+                            </tr>
 
                             <tr class="bold">
                                 <td>{{ __('admin::app.sales.orders.grand-total') }}</td>
                                 <td>-</td>
-                                <td>{{ core()->formatBasePrice($invoice->base_grand_total) }}</td>
+                                <td>{{ core()->formatBasePrice($refund->base_grand_total) }}</td>
                             </tr>
                         </table>
 

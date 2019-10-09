@@ -8,31 +8,31 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 /**
- * New Shipment Mail class
+ * New Refund Mail class
  *
  * @author    Jitendra Singh <jitendra@webkul.com>
  * @copyright 2018 Webkul Software Pvt Ltd (http://www.webkul.com)
  */
-class NewShipmentNotification extends Mailable
+class NewRefundNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
-     * The shipment instance.
+     * The refund instance.
      *
-     * @var Shipment
+     * @var Refund
      */
-    public $shipment;
+    public $refund;
 
     /**
      * Create a new message instance.
      *
-     * @param mixed $shipment
+     * @param mixed $refund
      * @return void
      */
-    public function __construct($shipment)
+    public function __construct($refund)
     {
-        $this->shipment = $shipment;
+        $this->refund = $refund;
     }
 
     /**
@@ -42,11 +42,11 @@ class NewShipmentNotification extends Mailable
      */
     public function build()
     {
-        $order = $this->shipment->order;
+        $order = $this->refund->order;
 
         return $this->to($order->customer_email, $order->customer_full_name)
                 ->from(env('SHOP_MAIL_FROM'))
-                ->subject(trans('shop::app.mail.shipment.subject', ['order_id' => $order->increment_id]))
-                ->view('shop::emails.sales.new-shipment');
+                ->subject(trans('shop::app.mail.refund.subject', ['order_id' => $order->increment_id]))
+                ->view('shop::emails.sales.new-refund');
     }
 }
