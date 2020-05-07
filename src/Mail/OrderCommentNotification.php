@@ -7,26 +7,26 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NewRefundNotification extends Mailable
+class OrderCommentNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
-     * The refund instance.
+     * The order comment instance.
      *
-     * @var \Webkul\Sales\Contracts\Refund
+     * @var  \Webkul\Sales\Contracts\OrderComment  $comment
      */
-    public $refund;
+    public $comment;
 
     /**
      * Create a new message instance.
      *
-     * @param  \Webkul\Sales\Contracts\Refund  $refund
+     * @param  \Webkul\Sales\Contracts\OrderComment  $comment
      * @return void
      */
-    public function __construct($refund)
+    public function __construct($comment)
     {
-        $this->refund = $refund;
+        $this->comment = $comment;
     }
 
     /**
@@ -36,11 +36,9 @@ class NewRefundNotification extends Mailable
      */
     public function build()
     {
-        $order = $this->refund->order;
-
         return $this->from(core()->getSenderEmailDetails()['email'], core()->getSenderEmailDetails()['name'])
-                    ->to($order->customer_email, $order->customer_full_name)
-                    ->subject(trans('shop::app.mail.refund.subject', ['order_id' => $order->increment_id]))
-                    ->view('shop::emails.sales.new-refund');
+                    ->to($this->comment->order->customer_email, $this->comment->order->customer_full_name)
+                    ->subject(trans('shop::app.mail.order.comment.subject'))
+                    ->view('shop::emails.sales.new-order-comment');
     }
 }
